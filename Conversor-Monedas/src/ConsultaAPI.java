@@ -1,13 +1,17 @@
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class ConsultaAPI {
-    public Conversor buscarMoneda(String tipoDeMoneda){
+public class ConsultaAPI{
+    public Listas buscarMoneda(String tipoDeMoneda, double cantidad, String opcionSeleccionada){
 
         URI direccion = URI.create("https://v6.exchangerate-api.com/v6/0fe1ced8fd70536355ef4f6b/latest/" + tipoDeMoneda);
         HttpClient client = HttpClient.newHttpClient();
@@ -15,16 +19,60 @@ public class ConsultaAPI {
                 .uri(direccion)
                 .build();
 
-        HttpResponse<String> response = null;
         try {
-            response = client
+            HttpResponse<String> response = client
                     .send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+
+            var prueba = response.body();
+            Gson gson = new Gson();
+            JsonObject jsonObject = gson.fromJson(prueba, JsonObject.class);
+            JsonObject conversion_rates = jsonObject.getAsJsonObject("conversion_rates");
+
+            //System.out.println(prueba);
+
+            Conversor conversor = new Conversor();
+            Map<String, Double> valores = gson.fromJson(conversion_rates, HashMap.class);
+            //System.out.println(valores);
+
+            Map.Entry<String, Double>[] array = valores.entrySet().toArray(new Map.Entry[0]);
+
+            Listas listas = new Listas();
+            ArrayList<Coin> coinList = new ArrayList<Coin>();
+            for (Map.Entry<String, Double> coin: array) {
+                Coin singleCoin = new Coin();
+                //if (coin.getKey().equals("USD") || coin.getKey().equals("ARS") || coin.getKey().equals("COP") || coin.getKey().equals("BRL")){
+                if (opcionSeleccionada.equals("1") && coin.getKey().equals("ARS")){
+                    singleCoin.setName(coin.getKey());
+                    singleCoin.setValue(coin.getValue() * cantidad);
+                    coinList.add(singleCoin);
+                    //System.out.println(coin.getKey() + ": " + coin.getValue());
+                } else if (opcionSeleccionada.equals("2") && coin.getKey().equals("USD")) {
+                    singleCoin.setName(coin.getKey());
+                    singleCoin.setValue(coin.getValue() * cantidad);
+                    coinList.add(singleCoin);
+                } else if (opcionSeleccionada.equals("3") && coin.getKey().equals("BRL")) {
+                    singleCoin.setName(coin.getKey());
+                    singleCoin.setValue(coin.getValue() * cantidad);
+                    coinList.add(singleCoin);
+                } else if (opcionSeleccionada.equals("4") && coin.getKey().equals("USD")) {
+                    singleCoin.setName(coin.getKey());
+                    singleCoin.setValue(coin.getValue() * cantidad);
+                    coinList.add(singleCoin);
+                } else if (opcionSeleccionada.equals("5") && coin.getKey().equals("COP")) {
+                    singleCoin.setName(coin.getKey());
+                    singleCoin.setValue(coin.getValue() * cantidad);
+                    coinList.add(singleCoin);
+                } else if (opcionSeleccionada.equals("6") && coin.getKey().equals("USD")) {
+                    singleCoin.setName(coin.getKey());
+                    singleCoin.setValue(coin.getValue() * cantidad);
+                    coinList.add(singleCoin);
+                }
+            }
+            listas.setCoin(coinList);
+            return listas;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Seleccion no valida.");
         }
-        //System.out.println(response.body());
-        var prueba = response.body();
-        //System.out.println("Esto es una prueba: " + prueba);
-        return new Gson().fromJson(response.body(), Conversor.class);
     }
 }
