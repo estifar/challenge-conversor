@@ -27,25 +27,20 @@ public class ConsultaAPI{
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(prueba, JsonObject.class);
             JsonObject conversion_rates = jsonObject.getAsJsonObject("conversion_rates");
-
-            //System.out.println(prueba);
-
             Conversor conversor = new Conversor();
             Map<String, Double> valores = gson.fromJson(conversion_rates, HashMap.class);
-            //System.out.println(valores);
-
             Map.Entry<String, Double>[] array = valores.entrySet().toArray(new Map.Entry[0]);
 
             Listas listas = new Listas();
             ArrayList<Coin> coinList = new ArrayList<Coin>();
             for (Map.Entry<String, Double> coin: array) {
                 Coin singleCoin = new Coin();
-                //if (coin.getKey().equals("USD") || coin.getKey().equals("ARS") || coin.getKey().equals("COP") || coin.getKey().equals("BRL")){
+
                 if (opcionSeleccionada.equals("1") && coin.getKey().equals("ARS")){
                     singleCoin.setName(coin.getKey());
                     singleCoin.setValue(coin.getValue() * cantidad);
                     coinList.add(singleCoin);
-                    //System.out.println(coin.getKey() + ": " + coin.getValue());
+
                 } else if (opcionSeleccionada.equals("2") && coin.getKey().equals("USD")) {
                     singleCoin.setName(coin.getKey());
                     singleCoin.setValue(coin.getValue() * cantidad);
